@@ -24,7 +24,7 @@ const env = {
 };
 
 beforeEach(() => {
-  vi.stubGlobal('fetch', vi.fn(async () => ({ text: async () => 'success' })));
+  vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, text: async () => 'success' })));
 });
 
 afterEach(() => {

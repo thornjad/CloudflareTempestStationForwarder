@@ -104,7 +104,7 @@ export async function fetchConditions(env) {
     };
   }
 
-  console.log(JSON.stringify(conditions));
+  console.log('fetched conditions at', new Date(conditions.time).toISOString());
 
   await env.CACHE.put('conditions', JSON.stringify(conditions), { expirationTtl: 21600 });
 

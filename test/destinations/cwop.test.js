@@ -28,7 +28,7 @@ function makeEnv(lastCwopTime = null) {
 }
 
 beforeEach(() => {
-  vi.stubGlobal('fetch', vi.fn(async () => ({ text: async () => 'success' })));
+  vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, text: async () => 'success' })));
 });
 
 afterEach(() => {
@@ -49,7 +49,7 @@ describe('updateCWOP', () => {
     expect(url).toContain('id=CW0001');
     expect(url).toContain('lat=41.8781');
     expect(url).toContain('long=-87.6298');
-    expect(url).toContain(`time=${conditions.time}`);
+    expect(url).toContain(`time=${conditions.time / 1000}`);
     expect(url).toContain('tempf=77');
     expect(url).toContain('windspeedmph=10');
     expect(url).toContain('windgustmph=20');

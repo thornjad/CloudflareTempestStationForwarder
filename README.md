@@ -1,6 +1,6 @@
 # Cloudflare Tempest Station Forwarder
 
-A Cloudflare Worker that reads weather data from a [WeatherFlow Tempest](https://weatherflow.com/tempest-weather-system/) station and forwards it to weather reporting services on a 5-minute cron schedule.
+A Cloudflare Worker that reads weather data from a [Tempest](https://tempest.earth/) weather station and forwards it to weather reporting services on a 5-minute cron schedule.
 
 ## Destinations
 

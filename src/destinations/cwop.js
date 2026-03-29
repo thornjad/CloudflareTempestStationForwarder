@@ -31,7 +31,7 @@ export async function updateCWOP(conditions, env) {
   if (env.CWOP_VALIDATION_CODE) url += `&validation=${env.CWOP_VALIDATION_CODE}`;
   url += `&lat=${conditions.latitude}`;
   url += `&long=${conditions.longitude}`;
-  url += `&time=${conditions.time}`;
+  url += `&time=${conditions.time / 1000}`;
   url += `&tempf=${conditions.temp.f}`;
   url += `&windspeedmph=${conditions.windSpeed.mph}`;
   url += `&windgustmph=${conditions.windGust.mph}`;
@@ -43,10 +43,11 @@ export async function updateCWOP(conditions, env) {
   if (conditions.precipSinceMidnight != null) url += `&dailyrainin=${conditions.precipSinceMidnight.in}`;
   url += `&software=${SOFTWARE_TYPE}`;
 
-  console.log('CWOP request:', url);
+  console.log('CWOP: submitting packet for', new Date(conditions.time).toISOString());
 
   const resp = await fetch(url);
   const text = await resp.text();
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${text}`);
   console.log('CWOP:', text);
 
   await env.CACHE.put('lastCwopTime', String(conditions.time), { expirationTtl: 21600 });

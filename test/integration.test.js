@@ -50,13 +50,13 @@ function makeFetch(responses = {}) {
       return { ok: true, json: async () => mockTempestResponse };
     }
     if (url.includes('pwsupdate.pwsweather.com')) {
-      return { text: async () => responses.pws ?? 'success' };
+      return { ok: true, text: async () => responses.pws ?? 'success' };
     }
     if (url.includes('send.cwop.rest')) {
-      return { text: async () => responses.cwop ?? 'success' };
+      return { ok: true, text: async () => responses.cwop ?? 'success' };
     }
     if (url.includes('rtupdate.wunderground.com')) {
-      return { text: async () => responses.wu ?? 'success' };
+      return { ok: true, text: async () => responses.wu ?? 'success' };
     }
     throw new Error(`Unexpected fetch to ${url}`);
   });
@@ -111,7 +111,7 @@ describe('scheduled handler', () => {
         throw new Error('PWSWeather is down');
       }
       if (url.includes('send.cwop.rest')) {
-        return { text: async () => 'success' };
+        return { ok: true, text: async () => 'success' };
       }
       throw new Error(`Unexpected fetch to ${url}`);
     }));
