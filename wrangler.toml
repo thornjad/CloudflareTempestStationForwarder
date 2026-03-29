@@ -1,14 +1,15 @@
 "$schema" = "./node_modules/wrangler/config-schema.json"
 name = "weather-station-forwarder"
 main = "src/index.js"
-compatibility_date = "2025-01-01"
+compatibility_date = "2026-03-29"
 
 [triggers]
 crons = ["*/5 * * * *"]
 
+# create with: npx wrangler kv namespace create CACHE
 [[kv_namespaces]]
 binding = "CACHE"
-id = "<create with: npx wrangler kv namespace create CACHE>"
+id = ""
 
 [vars]
 CWOP_VALIDATION_CODE = ""
