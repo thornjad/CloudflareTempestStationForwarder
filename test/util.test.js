@@ -77,6 +77,17 @@ describe('fetchJSON', () => {
 });
 
 describe('getCalculatedHourlyPrecipAccum', () => {
+  const FIXED_NOW = Date.UTC(2024, 5, 15, 14, 0, 0);
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(FIXED_NOW);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   function makeCache(initial = null) {
     let stored = initial;
     return {
@@ -92,11 +103,10 @@ describe('getCalculatedHourlyPrecipAccum', () => {
   });
 
   it('returns null when history spans less than 95% of an hour', async () => {
-    const now = Date.now();
     // entries spanning 30 minutes — not enough
     const history = [
-      { rate: 0.1, timestamp: now - 30 * 60 * 1000 },
-      { rate: 0.1, timestamp: now - 15 * 60 * 1000 },
+      { rate: 0.1, timestamp: FIXED_NOW - 30 * 60 * 1000 },
+      { rate: 0.1, timestamp: FIXED_NOW - 15 * 60 * 1000 },
     ];
     const cache = makeCache(JSON.stringify(history));
     const result = await getCalculatedHourlyPrecipAccum(cache, 0.1);
@@ -104,11 +114,10 @@ describe('getCalculatedHourlyPrecipAccum', () => {
   });
 
   it('calculates accumulation when history spans a full hour', async () => {
-    const now = Date.now();
     // constant rate of 0.5 in/hr for 1 hour → should accumulate ~0.5 inches
     const history = [
-      { rate: 0.5, timestamp: now - 3600000 },
-      { rate: 0.5, timestamp: now - 1800000 },
+      { rate: 0.5, timestamp: FIXED_NOW - 3600000 },
+      { rate: 0.5, timestamp: FIXED_NOW - 1800000 },
     ];
     const cache = makeCache(JSON.stringify(history));
     const result = await getCalculatedHourlyPrecipAccum(cache, 0.5);
@@ -117,14 +126,13 @@ describe('getCalculatedHourlyPrecipAccum', () => {
   });
 
   it('prunes entries older than one hour', async () => {
-    const now = Date.now();
     const history = [
-      { rate: 1.0, timestamp: now - 7200000 }, // 2 hours ago — should be pruned
-      { rate: 0.5, timestamp: now - 3600000 },
+      { rate: 1.0, timestamp: FIXED_NOW - 7200000 }, // 2 hours ago — should be pruned
+      { rate: 0.5, timestamp: FIXED_NOW - 3600000 },
     ];
     const cache = makeCache(JSON.stringify(history));
     await getCalculatedHourlyPrecipAccum(cache, 0.5);
     const saved = JSON.parse(cache.put.mock.calls[0][1]);
-    expect(saved.some((e) => e.timestamp < now - 3600000)).toBe(false);
+    expect(saved.some((e) => e.timestamp < FIXED_NOW - 3600000)).toBe(false);
   });
 });
