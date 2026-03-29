@@ -49,11 +49,23 @@ describe('updateCWOP', () => {
     expect(url).toContain('id=CW0001');
     expect(url).toContain('lat=41.8781');
     expect(url).toContain('long=-87.6298');
-    expect(url).toContain(`time=${conditions.time / 1000}`);
+    expect(url).toContain(`time=${conditions.time}`);
     expect(url).toContain('tempf=77');
     expect(url).toContain('windspeedmph=10');
     expect(url).toContain('windgustmph=20');
     expect(url).toContain('winddir=270');
+  });
+
+  it('sends time as epoch milliseconds, not seconds', async () => {
+    // send.cwop.rest requires ms; sending seconds produces a timestamp from 1970
+    await updateCWOP(conditions, makeEnv());
+    const url = fetch.mock.calls[0][0];
+    const match = url.match(/[?&]time=(\d+)/);
+    expect(match).not.toBeNull();
+    const sentTime = Number(match[1]);
+    expect(sentTime).toBe(conditions.time);
+    // a Unix-seconds value would be ~13 digits shorter and fail the 5-minute window
+    expect(sentTime).toBeGreaterThan(1e12);
   });
 
   it('skips fetch when timestamp already sent (dedup)', async () => {

@@ -26,21 +26,24 @@ To enable an inactive destination, set `ENABLE_<NAME> = "true"` in `wrangler.tom
 
 ## Setup
 
-### 1. Install dependencies
+### 1. Install dependencies and log in to wrangler
 
 ```sh
 npm install
+npx wrangler login
 ```
 
 ### 2. Create the KV namespace
 
 Cloudflare KV is used to store the latest conditions between runs and to deduplicate CWOP submissions.
 
+Note: You must first comment out or delete the `kv_namespaces` config in `wrangler.toml` before running the creation command or you'll get errors.
+
 ```sh
 npx wrangler kv namespace create CACHE
 ```
 
-Copy the `id` from the output and paste it into `wrangler.toml`. If you skip this and try to use the ID currently in the file, it will fail since that's my ID:
+Copy the `id` from the output and put it into `wrangler.toml` in the same format that was there before you commented/deleted. If you skip this and try to use the ID currently in the file, it will fail since that's my ID.
 
 ```toml
 [[kv_namespaces]]
@@ -54,19 +57,25 @@ Edit `wrangler.toml` and set which destinations are active:
 
 ```toml
 [vars]
-CWOP_VALIDATION_CODE = ""   # ham operators only — leave empty otherwise
-
 ENABLE_PWSWEATHER = "true"
 ENABLE_CWOP = "true"
 ENABLE_WUNDERGROUND = "false"
 ```
 
-### 4. Set secrets
+### 4. Deploy
+
+The worker must exist in Cloudflare before secrets can be attached to it.
+
+```sh
+npm run deploy
+```
+
+### 5. Set secrets
 
 Station IDs are kept as secrets rather than committed vars because they can be used to look up your station's GPS coordinates on public weather sites, linking your GitHub identity to your home address.
 
 ```sh
-npx wrangler secret put TEMPEST_TOKEN
+npx wrangler secret put TEMPEST_TOKEN             # from tempestwx.com/settings/tokens
 npx wrangler secret put TEMPEST_STATION_ID        # from tempestwx.com/settings/stations
 npx wrangler secret put PWSWEATHER_API_KEY        # if using PWSWeather
 npx wrangler secret put PWSWEATHER_STATION_ID     # if using PWSWeather
@@ -75,15 +84,7 @@ npx wrangler secret put WUNDERGROUND_STATION_ID   # if using Wunderground
 npx wrangler secret put WUNDERGROUND_STATION_KEY  # if using Wunderground
 ```
 
-Each command will prompt you to paste the value.
-
-### 5. Deploy
-
-```sh
-npm run deploy
-```
-
-Your worker is now live and will run every 5 minutes.
+Each command will prompt you to paste the value. Your worker is now live and will run every 5 minutes.
 
 ## Local Development
 

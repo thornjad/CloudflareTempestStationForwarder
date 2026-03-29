@@ -31,7 +31,8 @@ export async function updateCWOP(conditions, env) {
   if (env.CWOP_VALIDATION_CODE) url += `&validation=${env.CWOP_VALIDATION_CODE}`;
   url += `&lat=${conditions.latitude}`;
   url += `&long=${conditions.longitude}`;
-  url += `&time=${conditions.time / 1000}`;
+  // send.cwop.rest expects epoch milliseconds, not seconds
+  url += `&time=${conditions.time}`;
   url += `&tempf=${conditions.temp.f}`;
   url += `&windspeedmph=${conditions.windSpeed.mph}`;
   url += `&windgustmph=${conditions.windGust.mph}`;
