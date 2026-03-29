@@ -2,6 +2,10 @@
 
 A Cloudflare Worker that reads weather data from a [Tempest](https://tempest.earth/) weather station and forwards it to weather reporting services on a 5-minute cron schedule.
 
+Currently, only destinations which I personally feed to are included. I'm open to PRs adding other destinations.
+
+This Cloudflare Worker is derived from the Google Apps Script project [WundergroundStationForwarder](https://github.com/leoherzog/WundergroundStationForwarder) by [Leo Herzog](https://leoherzog.com/).
+
 ## Destinations
 
 | Service | Status | Notes |
@@ -9,20 +13,16 @@ A Cloudflare Worker that reads weather data from a [Tempest](https://tempest.ear
 | [PWSWeather](https://www.pwsweather.com/) | Active | |
 | [CWOP](http://wxqa.com/) | Active | Citizen Weather Observer Program |
 | [Weather Underground](https://www.wunderground.com/) | Inactive (code present) | Tempest already feeds WU directly |
-| [Windy](https://www.windy.com/) | Not implemented | |
-| [WeatherCloud](https://weathercloud.net/) | Not implemented | |
-| [OpenWeatherMap](https://openweathermap.org/) | Not implemented | |
-| [WindGuru](https://www.windguru.cz/) | Not implemented | |
-| [WOW.BE](https://wow.meteo.be/) | Not implemented | |
+| [Windy](https://www.windy.com/) | Not yet implemented | |
 
 To enable an inactive destination, set `ENABLE_<NAME> = "true"` in `wrangler.toml` and add the required secrets. To implement a new one, add a module in `src/destinations/` following the existing pattern.
 
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/) 18+
-- A [Cloudflare account](https://dash.cloudflare.com/sign-up) (free tier works)
+- A [Cloudflare account](https://dash.cloudflare.com/sign-up) (free tier should work fine for this project)
 - A WeatherFlow Tempest station and [API token](https://tempestwx.com/settings/tokens)
-- API keys/IDs for whichever destinations you enable
+- API keys/IDs for whichever destinations you enable. CWOP involves an application to NOAA.
 
 ## Setup
 
@@ -40,7 +40,7 @@ Cloudflare KV is used to store the latest conditions between runs and to dedupli
 npx wrangler kv namespace create CACHE
 ```
 
-Copy the `id` from the output and paste it into `wrangler.toml`:
+Copy the `id` from the output and paste it into `wrangler.toml`. If you skip this and try to use the ID currently in the file, it will fail since that's my ID:
 
 ```toml
 [[kv_namespaces]]
