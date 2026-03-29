@@ -48,31 +48,30 @@ binding = "CACHE"
 id = "paste-your-id-here"
 ```
 
-### 3. Configure station IDs and toggle destinations
+### 3. Configure destination toggles
 
-Edit `wrangler.toml` and fill in your station IDs:
+Edit `wrangler.toml` and set which destinations are active:
 
 ```toml
 [vars]
-TEMPEST_STATION_ID = "12345"          # from tempestwx.com/settings/stations
-PWSWEATHER_STATION_ID = "MYID001"
-CWOP_STATION_ID = "CW0001"
-CWOP_VALIDATION_CODE = ""             # leave empty if you don't have one
+CWOP_VALIDATION_CODE = ""   # ham operators only — leave empty otherwise
 
 ENABLE_PWSWEATHER = "true"
 ENABLE_CWOP = "true"
 ENABLE_WUNDERGROUND = "false"
 ```
 
-Note: station IDs are not secrets and are safe to commit. API keys go in step 4.
-
 ### 4. Set secrets
 
-Secrets are stored in Cloudflare's encrypted secret store and are never committed to the repo.
+Station IDs are kept as secrets rather than committed vars because they can be used to look up your station's GPS coordinates on public weather sites, linking your GitHub identity to your home address.
 
 ```sh
 npx wrangler secret put TEMPEST_TOKEN
-npx wrangler secret put PWSWEATHER_API_KEY       # if using PWSWeather
+npx wrangler secret put TEMPEST_STATION_ID        # from tempestwx.com/settings/stations
+npx wrangler secret put PWSWEATHER_API_KEY        # if using PWSWeather
+npx wrangler secret put PWSWEATHER_STATION_ID     # if using PWSWeather
+npx wrangler secret put CWOP_STATION_ID           # if using CWOP
+npx wrangler secret put WUNDERGROUND_STATION_ID   # if using Wunderground
 npx wrangler secret put WUNDERGROUND_STATION_KEY  # if using Wunderground
 ```
 

@@ -11,17 +11,17 @@ binding = "CACHE"
 id = "<create with: npx wrangler kv namespace create CACHE>"
 
 [vars]
-TEMPEST_STATION_ID = ""
-PWSWEATHER_STATION_ID = ""
-CWOP_STATION_ID = ""
 CWOP_VALIDATION_CODE = ""
-WUNDERGROUND_STATION_ID = ""
 
 ENABLE_PWSWEATHER = "true"
 ENABLE_CWOP = "true"
 ENABLE_WUNDERGROUND = "false"
 
 # Secrets (set via `npx wrangler secret put <NAME>`):
-# TEMPEST_TOKEN
-# PWSWEATHER_API_KEY
-# WUNDERGROUND_STATION_KEY
+# TEMPEST_TOKEN           - Tempest API token
+# TEMPEST_STATION_ID      - Tempest station ID (links to home location)
+# PWSWEATHER_API_KEY      - PWSWeather API key
+# PWSWEATHER_STATION_ID   - PWSWeather station ID (links to home location)
+# CWOP_STATION_ID         - CWOP station ID (links to home location)
+# WUNDERGROUND_STATION_ID - Weather Underground station ID (links to home location)
+# WUNDERGROUND_STATION_KEY - Weather Underground station key

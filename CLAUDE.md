@@ -44,10 +44,16 @@ curl "http://localhost:8787/__scheduled?cron=*/5+*+*+*+*"
 
 ## Secrets Required
 
+Station IDs are secrets (not vars) because they can be used to look up GPS coordinates on public weather sites.
+
 | Secret | Used by |
 |---|---|
 | `TEMPEST_TOKEN` | Tempest API auth |
+| `TEMPEST_STATION_ID` | Tempest API |
 | `PWSWEATHER_API_KEY` | PWSWeather (when enabled) |
+| `PWSWEATHER_STATION_ID` | PWSWeather (when enabled) |
+| `CWOP_STATION_ID` | CWOP (when enabled) |
+| `WUNDERGROUND_STATION_ID` | Wunderground (when enabled) |
 | `WUNDERGROUND_STATION_KEY` | Wunderground (when enabled) |
 
 ## Adding a Destination
