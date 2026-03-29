@@ -8,12 +8,12 @@ This Cloudflare Worker is derived from the Google Apps Script project [Wundergro
 
 ## Destinations
 
-| Service | Status | Notes |
-|---|---|---|
-| [PWSWeather](https://www.pwsweather.com/) | Active | |
-| [CWOP](http://wxqa.com/) | Active | Citizen Weather Observer Program |
-| [Weather Underground](https://www.wunderground.com/) | Inactive (code present) | Tempest already feeds WU directly |
-| [Windy](https://www.windy.com/) | Not yet implemented | |
+| Service                                              | Status              | Notes                             |
+|------------------------------------------------------|---------------------|-----------------------------------|
+| [PWSWeather](https://www.pwsweather.com/)            | Active              |                                   |
+| [CWOP](http://wxqa.com/)                             | Active              | Citizen Weather Observer Program  |
+| [Weather Underground](https://www.wunderground.com/) | Active              | Tempest already feeds WU directly |
+| [Windy](https://stations.windy.com/)                      | Not yet implemented |                                   |
 
 To enable an inactive destination, set `ENABLE_<NAME> = "true"` in `wrangler.toml` and add the required secrets. To implement a new one, add a module in `src/destinations/` following the existing pattern.
 

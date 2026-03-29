@@ -16,7 +16,7 @@ CWOP_VALIDATION_CODE = ""  # For CWOP Ham link
 
 ENABLE_PWSWEATHER = "true"
 ENABLE_CWOP = "true"
-ENABLE_WUNDERGROUND = "false"
+ENABLE_WUNDERGROUND = "true"
 
 # Secrets (set via `npx wrangler secret put <NAME>`):
 # TEMPEST_TOKEN           - Tempest API token
