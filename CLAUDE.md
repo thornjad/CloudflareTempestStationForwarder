@@ -1,4 +1,4 @@
-# Weather Station Forwarder
+# Cloudflare Tempest Station Forwarder
 
 A Cloudflare Worker that forwards Tempest weather station data to reporting services.
 

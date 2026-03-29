@@ -1,5 +1,5 @@
 "$schema" = "./node_modules/wrangler/config-schema.json"
-name = "weather-station-forwarder"
+name = "cloudflare-tempest-station-forwarder"
 main = "src/index.js"
 compatibility_date = "2026-03-29"
 
