@@ -1,0 +1,27 @@
+"$schema" = "./node_modules/wrangler/config-schema.json"
+name = "weather-station-forwarder"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+[[kv_namespaces]]
+binding = "CACHE"
+id = "<create with: npx wrangler kv namespace create CACHE>"
+
+[vars]
+TEMPEST_STATION_ID = ""
+PWSWEATHER_STATION_ID = ""
+CWOP_STATION_ID = ""
+CWOP_VALIDATION_CODE = ""
+WUNDERGROUND_STATION_ID = ""
+
+ENABLE_PWSWEATHER = "true"
+ENABLE_CWOP = "true"
+ENABLE_WUNDERGROUND = "false"
+
+# Secrets (set via `npx wrangler secret put <NAME>`):
+# TEMPEST_TOKEN
+# PWSWEATHER_API_KEY
+# WUNDERGROUND_STATION_KEY

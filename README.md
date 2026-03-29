@@ -1,0 +1,133 @@
+# Weather Station Forwarder
+
+A Cloudflare Worker that reads weather data from a [WeatherFlow Tempest](https://weatherflow.com/tempest-weather-system/) station and forwards it to weather reporting services on a 5-minute cron schedule.
+
+## Destinations
+
+| Service | Status | Notes |
+|---|---|---|
+| [PWSWeather](https://www.pwsweather.com/) | Active | |
+| [CWOP](http://wxqa.com/) | Active | Citizen Weather Observer Program |
+| [Weather Underground](https://www.wunderground.com/) | Inactive (code present) | Tempest already feeds WU directly |
+| [Windy](https://www.windy.com/) | Not implemented | |
+| [WeatherCloud](https://weathercloud.net/) | Not implemented | |
+| [OpenWeatherMap](https://openweathermap.org/) | Not implemented | |
+| [WindGuru](https://www.windguru.cz/) | Not implemented | |
+| [WOW.BE](https://wow.meteo.be/) | Not implemented | |
+
+To enable an inactive destination, set `ENABLE_<NAME> = "true"` in `wrangler.toml` and add the required secrets. To implement a new one, add a module in `src/destinations/` following the existing pattern.
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) 18+
+- A [Cloudflare account](https://dash.cloudflare.com/sign-up) (free tier works)
+- A WeatherFlow Tempest station and [API token](https://tempestwx.com/settings/tokens)
+- API keys/IDs for whichever destinations you enable
+
+## Setup
+
+### 1. Install dependencies
+
+```sh
+npm install
+```
+
+### 2. Create the KV namespace
+
+Cloudflare KV is used to store the latest conditions between runs and to deduplicate CWOP submissions.
+
+```sh
+npx wrangler kv namespace create CACHE
+```
+
+Copy the `id` from the output and paste it into `wrangler.toml`:
+
+```toml
+[[kv_namespaces]]
+binding = "CACHE"
+id = "paste-your-id-here"
+```
+
+### 3. Configure station IDs and toggle destinations
+
+Edit `wrangler.toml` and fill in your station IDs:
+
+```toml
+[vars]
+TEMPEST_STATION_ID = "12345"          # from tempestwx.com/settings/stations
+PWSWEATHER_STATION_ID = "MYID001"
+CWOP_STATION_ID = "CW0001"
+CWOP_VALIDATION_CODE = ""             # leave empty if you don't have one
+
+ENABLE_PWSWEATHER = "true"
+ENABLE_CWOP = "true"
+ENABLE_WUNDERGROUND = "false"
+```
+
+Note: station IDs are not secrets and are safe to commit. API keys go in step 4.
+
+### 4. Set secrets
+
+Secrets are stored in Cloudflare's encrypted secret store and are never committed to the repo.
+
+```sh
+npx wrangler secret put TEMPEST_TOKEN
+npx wrangler secret put PWSWEATHER_API_KEY       # if using PWSWeather
+npx wrangler secret put WUNDERGROUND_STATION_KEY  # if using Wunderground
+```
+
+Each command will prompt you to paste the value.
+
+### 5. Deploy
+
+```sh
+npm run deploy
+```
+
+Your worker is now live and will run every 5 minutes.
+
+## Local Development
+
+Start a local dev server that simulates the Workers runtime:
+
+```sh
+npm run dev
+```
+
+To trigger the cron handler manually (in a separate terminal):
+
+```sh
+curl "http://localhost:8787/__scheduled?cron=*/5+*+*+*+*"
+```
+
+Watch the console output in the `npm run dev` terminal for the fetch results and destination responses.
+
+## Testing
+
+```sh
+npm test
+```
+
+Tests cover unit conversions, URL construction for each destination, conditions normalization, and the full scheduled handler flow with mocked HTTP and KV.
+
+## Monitoring
+
+Stream live logs from the deployed worker:
+
+```sh
+npm run tail
+```
+
+Each 5-minute cron cycle logs the raw conditions object and each destination's response.
+
+## How It Works
+
+Every 5 minutes the Cloudflare cron trigger fires `scheduled()` in `src/index.js`:
+
+1. **Fetch**: `src/tempest.js` calls the Tempest REST API and normalizes the observation into a multi-unit `conditions` object (temp in F and C, wind in mph/m/s/kph/knots, etc.). Wind chill and heat index are derived if the station doesn't report them directly.
+2. **Forward**: Each enabled destination function in `src/destinations/` builds an HTTP request from the conditions object and sends it. Destinations run in parallel; a failure in one does not block the others.
+3. **Cache**: The conditions object and CWOP dedup state are stored in Cloudflare KV.
+
+## Credits
+
+Based on [WundergroundStationForwarder](https://github.com/leoherzog/WundergroundStationForwarder) by [Leo Herzog](https://leoherzog.com/), licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
