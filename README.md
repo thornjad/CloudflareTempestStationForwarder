@@ -135,4 +135,6 @@ Every 5 minutes the Cloudflare cron trigger fires `scheduled()` in `src/index.js
 
 Based on [WundergroundStationForwarder](https://github.com/leoherzog/WundergroundStationForwarder) by [Leo Herzog](https://leoherzog.com/), licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 
+---
+
 Found this useful? [Buy me a coffee!](https://buymeacoffee.com/jademichaelthornton)
