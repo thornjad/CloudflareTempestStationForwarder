@@ -3,6 +3,7 @@ import { updatePWSWeather } from './destinations/pwsweather.js';
 import { updateCWOP } from './destinations/cwop.js';
 import { updateWunderground } from './destinations/wunderground.js';
 import { updateWindy } from './destinations/windy.js';
+import { updateOpenWeatherMap } from './destinations/openweathermap.js';
 
 export default {
   async scheduled(_event, env, _ctx) {
@@ -39,6 +40,13 @@ export default {
       tasks.push(
         updateWindy(conditions, env)
           .catch((err) => console.error('Windy error:', err.message))
+      );
+    }
+
+    if (env.OWM_STATION_ID && env.OWM_API_KEY) {
+      tasks.push(
+        updateOpenWeatherMap(conditions, env)
+          .catch((err) => console.error('OpenWeatherMap error:', err.message))
       );
     }
 

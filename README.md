@@ -14,6 +14,7 @@ This Cloudflare Worker is derived from the Google Apps Script project [Wundergro
 | [CWOP](http://wxqa.com/)                             | Citizen Weather Observer Program  |
 | [Weather Underground](https://www.wunderground.com/) | Tempest already feeds WU directly |
 | [Windy](https://stations.windy.com/)                 |                                   |
+| [OpenWeatherMap](https://openweathermap.org/stations) |                                   |
 
 Destinations are enabled automatically when their required secrets are set. To add a new destination, add a module in `src/destinations/` following the existing pattern.
 
@@ -73,6 +74,8 @@ npx wrangler secret put WUNDERGROUND_STATION_ID   # if using Wunderground
 npx wrangler secret put WUNDERGROUND_STATION_KEY  # if using Wunderground
 npx wrangler secret put WINDY_STATION_ID          # if using Windy
 npx wrangler secret put WINDY_STATION_PASSWORD    # if using Windy
+npx wrangler secret put OWM_STATION_ID            # if using OpenWeatherMap
+npx wrangler secret put OWM_API_KEY               # if using OpenWeatherMap
 ```
 
 Each command will prompt you to paste the value. Your worker is now live and will run every 5 minutes.

@@ -24,3 +24,5 @@ CWOP_VALIDATION_CODE = ""  # ham operators only — leave empty otherwise
 # WUNDERGROUND_STATION_KEY - Weather Underground station key
 # WINDY_STATION_ID         - Windy station ID (links to home location)
 # WINDY_STATION_PASSWORD   - Windy station password
+# OWM_STATION_ID           - OpenWeatherMap internal station ID
+# OWM_API_KEY              - OpenWeatherMap API key
