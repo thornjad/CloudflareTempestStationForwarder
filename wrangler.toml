@@ -12,12 +12,7 @@ binding = "CACHE"
 id = "87fcd0db9380464b9bed4dd4a542cff9"
 
 [vars]
-CWOP_VALIDATION_CODE = ""  # For CWOP Ham link
-
-ENABLE_PWSWEATHER = "true"
-ENABLE_CWOP = "true"
-ENABLE_WUNDERGROUND = "true"
-ENABLE_WINDY = "false"
+CWOP_VALIDATION_CODE = ""  # ham operators only — leave empty otherwise
 
 # Secrets (set via `npx wrangler secret put <NAME>`):
 # TEMPEST_TOKEN            - Tempest API token

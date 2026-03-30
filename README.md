@@ -13,9 +13,9 @@ This Cloudflare Worker is derived from the Google Apps Script project [Wundergro
 | [PWSWeather](https://www.pwsweather.com/)            | Active              |                                   |
 | [CWOP](http://wxqa.com/)                             | Active              | Citizen Weather Observer Program  |
 | [Weather Underground](https://www.wunderground.com/) | Active              | Tempest already feeds WU directly |
-| [Windy](https://stations.windy.com/)                 | Inactive (code present) |                              |
+| [Windy](https://stations.windy.com/)                 | Supported               |                              |
 
-To enable an inactive destination, set `ENABLE_<NAME> = "true"` in `wrangler.toml` and add the required secrets. To implement a new one, add a module in `src/destinations/` following the existing pattern.
+Destinations are enabled automatically when their required secrets are set. To add a new destination, add a module in `src/destinations/` following the existing pattern.
 
 ## Prerequisites
 
@@ -51,18 +51,7 @@ binding = "CACHE"
 id = "paste-your-id-here"
 ```
 
-### 3. Configure destination toggles
-
-Edit `wrangler.toml` and set which destinations are active:
-
-```toml
-[vars]
-ENABLE_PWSWEATHER = "true"
-ENABLE_CWOP = "true"
-ENABLE_WUNDERGROUND = "false"
-```
-
-### 4. Deploy
+### 3. Deploy
 
 The worker must exist in Cloudflare before secrets can be attached to it.
 
@@ -70,7 +59,7 @@ The worker must exist in Cloudflare before secrets can be attached to it.
 npm run deploy
 ```
 
-### 5. Set secrets
+### 4. Set secrets
 
 Station IDs are kept as secrets rather than committed vars because they can be used to look up your station's GPS coordinates on public weather sites, linking your GitHub identity to your home address.
 
@@ -88,7 +77,7 @@ npx wrangler secret put WINDY_STATION_PASSWORD    # if using Windy
 
 Each command will prompt you to paste the value. Your worker is now live and will run every 5 minutes.
 
-### 6. (Optional) Enable auto-deploy from GitHub
+### 5. (Optional) Enable auto-deploy from GitHub
 
 To have Cloudflare automatically redeploy the worker on every push to `main`, connect the worker to this repository via the Cloudflare dashboard. See [Cloudflare's Git integration documentation](https://developers.cloudflare.com/workers/ci-cd/builds/) for setup instructions.
 
@@ -131,7 +120,7 @@ Each 5-minute cron cycle logs the raw conditions object and each destination's r
 Every 5 minutes the Cloudflare cron trigger fires `scheduled()` in `src/index.js`:
 
 1. **Fetch**: `src/tempest.js` calls the Tempest REST API and normalizes the observation into a multi-unit `conditions` object (temp in F and C, wind in mph/m/s/kph/knots, etc.). Wind chill and heat index are derived if the station doesn't report them directly.
-2. **Forward**: Each enabled destination function in `src/destinations/` builds an HTTP request from the conditions object and sends it. Destinations run in parallel; a failure in one does not block the others.
+2. **Forward**: Each destination whose secrets are present builds an HTTP request from the conditions object and sends it. Destinations run in parallel; a failure in one does not block the others.
 3. **Cache**: The conditions object and CWOP dedup state are stored in Cloudflare KV.
 
 ## Credits

@@ -14,28 +14,28 @@ export default {
 
     const tasks = [];
 
-    if (env.ENABLE_PWSWEATHER === 'true') {
+    if (env.PWSWEATHER_STATION_ID && env.PWSWEATHER_API_KEY) {
       tasks.push(
         updatePWSWeather(conditions, env)
           .catch((err) => console.error('PWSWeather error:', err.message))
       );
     }
 
-    if (env.ENABLE_CWOP === 'true') {
+    if (env.CWOP_STATION_ID) {
       tasks.push(
         updateCWOP(conditions, env)
           .catch((err) => console.error('CWOP error:', err.message))
       );
     }
 
-    if (env.ENABLE_WUNDERGROUND === 'true') {
+    if (env.WUNDERGROUND_STATION_ID && env.WUNDERGROUND_STATION_KEY) {
       tasks.push(
         updateWunderground(conditions, env)
           .catch((err) => console.error('Wunderground error:', err.message))
       );
     }
 
-    if (env.ENABLE_WINDY === 'true') {
+    if (env.WINDY_STATION_ID && env.WINDY_STATION_PASSWORD) {
       tasks.push(
         updateWindy(conditions, env)
           .catch((err) => console.error('Windy error:', err.message))

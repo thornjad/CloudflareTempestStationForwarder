@@ -31,11 +31,7 @@ function makeEnv(overrides = {}) {
     PWSWEATHER_API_KEY: 'testkey',
     CWOP_STATION_ID: 'CW0001',
     CWOP_VALIDATION_CODE: '',
-    WUNDERGROUND_STATION_ID: 'KTEST001',
-    WUNDERGROUND_STATION_KEY: 'wukey',
-    ENABLE_PWSWEATHER: 'true',
-    ENABLE_CWOP: 'true',
-    ENABLE_WUNDERGROUND: 'false',
+    // Wunderground and Windy disabled by default — omit their secrets
     CACHE: {
       get: vi.fn(async () => null),
       put: vi.fn(async () => {}),
@@ -90,14 +86,14 @@ describe('scheduled handler', () => {
     expect(urls.some((u) => u.includes('send.cwop.rest'))).toBe(true);
   });
 
-  it('does not forward to Wunderground when disabled', async () => {
+  it('does not forward to Wunderground when secrets are absent', async () => {
     await worker.scheduled({}, makeEnv(), {});
     const urls = fetch.mock.calls.map((c) => c[0]);
     expect(urls.some((u) => u.includes('wunderground.com'))).toBe(false);
   });
 
-  it('forwards to Wunderground when explicitly enabled', async () => {
-    await worker.scheduled({}, makeEnv({ ENABLE_WUNDERGROUND: 'true' }), {});
+  it('forwards to Wunderground when secrets are present', async () => {
+    await worker.scheduled({}, makeEnv({ WUNDERGROUND_STATION_ID: 'KTEST001', WUNDERGROUND_STATION_KEY: 'wukey' }), {});
     const urls = fetch.mock.calls.map((c) => c[0]);
     expect(urls.some((u) => u.includes('rtupdate.wunderground.com'))).toBe(true);
   });
