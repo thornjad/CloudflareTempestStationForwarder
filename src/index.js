@@ -4,6 +4,7 @@ import { updateCWOP } from './destinations/cwop.js';
 import { updateWunderground } from './destinations/wunderground.js';
 import { updateWindy } from './destinations/windy.js';
 import { updateOpenWeatherMap } from './destinations/openweathermap.js';
+import { updateWeathercloud } from './destinations/weathercloud.js';
 
 export default {
   async scheduled(_event, env, _ctx) {
@@ -47,6 +48,13 @@ export default {
       tasks.push(
         updateOpenWeatherMap(conditions, env)
           .catch((err) => console.error('OpenWeatherMap error:', err.message))
+      );
+    }
+
+    if (env.WEATHERCLOUD_ID && env.WEATHERCLOUD_KEY) {
+      tasks.push(
+        updateWeathercloud(conditions, env)
+          .catch((err) => console.error('WeatherCloud error:', err.message))
       );
     }
 

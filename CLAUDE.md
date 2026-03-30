@@ -55,6 +55,8 @@ Station IDs are secrets (not vars) because they can be used to look up GPS coord
 | `CWOP_STATION_ID` | CWOP (when enabled) |
 | `WUNDERGROUND_STATION_ID` | Wunderground (when enabled) |
 | `WUNDERGROUND_STATION_KEY` | Wunderground (when enabled) |
+| `WEATHERCLOUD_ID` | WeatherCloud (when enabled) |
+| `WEATHERCLOUD_KEY` | WeatherCloud (when enabled) |
 
 ## Adding a Destination
 
