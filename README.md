@@ -8,12 +8,12 @@ This Cloudflare Worker is derived from the Google Apps Script project [Wundergro
 
 ## Destinations
 
-| Service                                              | Status              | Notes                             |
-|------------------------------------------------------|---------------------|-----------------------------------|
-| [PWSWeather](https://www.pwsweather.com/)            | Active              |                                   |
-| [CWOP](http://wxqa.com/)                             | Active              | Citizen Weather Observer Program  |
-| [Weather Underground](https://www.wunderground.com/) | Active              | Tempest already feeds WU directly |
-| [Windy](https://stations.windy.com/)                 | Supported               |                              |
+| Service                                              | Notes                             |
+|------------------------------------------------------|-----------------------------------|
+| [PWSWeather](https://www.pwsweather.com/)            |                                   |
+| [CWOP](http://wxqa.com/)                             | Citizen Weather Observer Program  |
+| [Weather Underground](https://www.wunderground.com/) | Tempest already feeds WU directly |
+| [Windy](https://stations.windy.com/)                 |                                   |
 
 Destinations are enabled automatically when their required secrets are set. To add a new destination, add a module in `src/destinations/` following the existing pattern.
 
