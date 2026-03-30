@@ -87,6 +87,8 @@ Each command will prompt you to paste the value. Your worker is now live and wil
 
 To have Cloudflare automatically redeploy the worker on every push to `main`, connect the worker to this repository via the Cloudflare dashboard. See [Cloudflare's Git integration documentation](https://developers.cloudflare.com/workers/ci-cd/builds/) for setup instructions.
 
+Found this useful? [Buy me a coffee!](https://buymeacoffee.com/jademichaelthornton)
+
 ## Local Development
 
 Start a local dev server that simulates the Workers runtime:
@@ -132,3 +134,5 @@ Every 5 minutes the Cloudflare cron trigger fires `scheduled()` in `src/index.js
 ## Credits
 
 Based on [WundergroundStationForwarder](https://github.com/leoherzog/WundergroundStationForwarder) by [Leo Herzog](https://leoherzog.com/), licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+
+Found this useful? [Buy me a coffee!](https://buymeacoffee.com/jademichaelthornton)
