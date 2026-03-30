@@ -17,12 +17,15 @@ CWOP_VALIDATION_CODE = ""  # For CWOP Ham link
 ENABLE_PWSWEATHER = "true"
 ENABLE_CWOP = "true"
 ENABLE_WUNDERGROUND = "true"
+ENABLE_WINDY = "false"
 
 # Secrets (set via `npx wrangler secret put <NAME>`):
-# TEMPEST_TOKEN           - Tempest API token
-# TEMPEST_STATION_ID      - Tempest station ID (links to home location)
-# PWSWEATHER_API_KEY      - PWSWeather API key
-# PWSWEATHER_STATION_ID   - PWSWeather station ID (links to home location)
-# CWOP_STATION_ID         - CWOP station ID (links to home location)
-# WUNDERGROUND_STATION_ID - Weather Underground station ID (links to home location)
+# TEMPEST_TOKEN            - Tempest API token
+# TEMPEST_STATION_ID       - Tempest station ID (links to home location)
+# PWSWEATHER_API_KEY       - PWSWeather API key
+# PWSWEATHER_STATION_ID    - PWSWeather station ID (links to home location)
+# CWOP_STATION_ID          - CWOP station ID (links to home location)
+# WUNDERGROUND_STATION_ID  - Weather Underground station ID (links to home location)
 # WUNDERGROUND_STATION_KEY - Weather Underground station key
+# WINDY_STATION_ID         - Windy station ID (links to home location)
+# WINDY_STATION_PASSWORD   - Windy station password

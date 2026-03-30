@@ -2,6 +2,7 @@ import { fetchConditions } from './tempest.js';
 import { updatePWSWeather } from './destinations/pwsweather.js';
 import { updateCWOP } from './destinations/cwop.js';
 import { updateWunderground } from './destinations/wunderground.js';
+import { updateWindy } from './destinations/windy.js';
 
 export default {
   async scheduled(_event, env, _ctx) {
@@ -31,6 +32,13 @@ export default {
       tasks.push(
         updateWunderground(conditions, env)
           .catch((err) => console.error('Wunderground error:', err.message))
+      );
+    }
+
+    if (env.ENABLE_WINDY === 'true') {
+      tasks.push(
+        updateWindy(conditions, env)
+          .catch((err) => console.error('Windy error:', err.message))
       );
     }
 

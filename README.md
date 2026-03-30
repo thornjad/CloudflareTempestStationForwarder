@@ -13,7 +13,7 @@ This Cloudflare Worker is derived from the Google Apps Script project [Wundergro
 | [PWSWeather](https://www.pwsweather.com/)            | Active              |                                   |
 | [CWOP](http://wxqa.com/)                             | Active              | Citizen Weather Observer Program  |
 | [Weather Underground](https://www.wunderground.com/) | Active              | Tempest already feeds WU directly |
-| [Windy](https://stations.windy.com/)                      | Not yet implemented |                                   |
+| [Windy](https://stations.windy.com/)                 | Inactive (code present) |                              |
 
 To enable an inactive destination, set `ENABLE_<NAME> = "true"` in `wrangler.toml` and add the required secrets. To implement a new one, add a module in `src/destinations/` following the existing pattern.
 
@@ -82,6 +82,8 @@ npx wrangler secret put PWSWEATHER_STATION_ID     # if using PWSWeather
 npx wrangler secret put CWOP_STATION_ID           # if using CWOP
 npx wrangler secret put WUNDERGROUND_STATION_ID   # if using Wunderground
 npx wrangler secret put WUNDERGROUND_STATION_KEY  # if using Wunderground
+npx wrangler secret put WINDY_STATION_ID          # if using Windy
+npx wrangler secret put WINDY_STATION_PASSWORD    # if using Windy
 ```
 
 Each command will prompt you to paste the value. Your worker is now live and will run every 5 minutes.
