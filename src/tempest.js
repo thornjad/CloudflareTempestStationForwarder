@@ -6,7 +6,6 @@ import { fetchJSON, getCalculatedHourlyPrecipAccum } from './util.js';
 
 /**
  * Fetch the latest observation from Tempest and return a normalized conditions object.
- * Also writes conditions to KV for external reads and debugging.
  * @param {object} env - Worker env bindings
  * @returns {Promise<object|null>}
  */
@@ -105,8 +104,6 @@ export async function fetchConditions(env) {
   }
 
   console.log('fetched conditions at', new Date(conditions.time).toISOString());
-
-  await env.CACHE.put('conditions', JSON.stringify(conditions), { expirationTtl: 21600 });
 
   return conditions;
 }
