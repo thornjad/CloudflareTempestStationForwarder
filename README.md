@@ -88,6 +88,10 @@ npx wrangler secret put WINDY_STATION_PASSWORD    # if using Windy
 
 Each command will prompt you to paste the value. Your worker is now live and will run every 5 minutes.
 
+### 6. (Optional) Enable auto-deploy from GitHub
+
+To have Cloudflare automatically redeploy the worker on every push to `main`, connect the worker to this repository via the Cloudflare dashboard. See [Cloudflare's Git integration documentation](https://developers.cloudflare.com/workers/ci-cd/builds/) for setup instructions.
+
 ## Local Development
 
 Start a local dev server that simulates the Workers runtime:
