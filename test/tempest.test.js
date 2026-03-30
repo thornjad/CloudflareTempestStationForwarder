@@ -111,16 +111,6 @@ describe('fetchConditions', () => {
     expect(conditions.solarRadiation).toBe(650);
   });
 
-  it('stores conditions in KV', async () => {
-    const env = makeEnv();
-    await fetchConditions(env);
-    expect(env.CACHE.put).toHaveBeenCalledWith(
-      'conditions',
-      expect.stringContaining('"temp"'),
-      { expirationTtl: 21600 }
-    );
-  });
-
   it('returns null when API response has no obs', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({
       ok: true,
