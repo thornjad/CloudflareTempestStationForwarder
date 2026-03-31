@@ -37,7 +37,7 @@ npx wrangler login
 
 ### 2. Create the KV namespace
 
-Cloudflare KV is used to store the latest conditions between runs and to deduplicate CWOP submissions.
+Cloudflare KV is used only to deduplicate CWOP submissions.
 
 Note: You must first comment out or delete the `kv_namespaces` config in `wrangler.toml` before running the creation command or you'll get errors.
 
