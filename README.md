@@ -1,6 +1,6 @@
 # Cloudflare Tempest Station Forwarder
 
-A Cloudflare Worker that reads weather data from a [Tempest](https://tempest.earth/) weather station and forwards it to weather reporting services on a 5-minute cron schedule.
+A Cloudflare Worker that reads weather data from a [Tempest](https://tempest.earth/) weather station and forwards it to weather reporting services on a 5-minute cron schedule. Lightweight enough to fit well within the free tier of Cloudflare Workers.
 
 Currently, only destinations which I personally feed to are included. I'm open to PRs adding other destinations.
 
@@ -63,7 +63,7 @@ npm run deploy
 
 ### 4. Set secrets
 
-Station IDs are kept as secrets rather than committed vars because they can be used to look up your station's GPS coordinates on public weather sites, linking your GitHub identity to your home address.
+Station IDs are kept as secrets rather than committed vars because they can be used to look up your station's GPS coordinates on public weather sites, linking your GitHub identity to your home address. Many of these IDs are technically public data, but why put it in GitHub.
 
 ```sh
 npx wrangler secret put TEMPEST_TOKEN             # from tempestwx.com/settings/tokens
