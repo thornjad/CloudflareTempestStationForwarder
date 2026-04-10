@@ -28,6 +28,6 @@ export async function updateWindy(conditions, env) {
   const resp = await fetch(url);
   const text = await resp.text();
   if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${text}`);
-  console.log('Windy:', resp.status, text);
+  console.log('Windy: [ok]', resp.status, text);
   return text;
 }

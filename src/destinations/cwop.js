@@ -49,7 +49,7 @@ export async function updateCWOP(conditions, env) {
   const resp = await fetch(url);
   const text = await resp.text();
   if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${text}`);
-  console.log('CWOP:', resp.status, text);
+  console.log('CWOP: [ok]', resp.status, text);
 
   await env.CACHE.put('lastCwopTime', String(conditions.time), { expirationTtl: 21600 });
 
