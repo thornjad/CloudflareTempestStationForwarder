@@ -40,7 +40,8 @@ export async function updateWeathercloud(conditions, env) {
   const resp = await fetch(url);
   const text = await resp.text();
   if (!resp.ok) {
-    throw new Error(`HTTP ${resp.status}: ${text}`);
+    const hint = resp.status === 429 ? ' (rate-limited)' : '';
+    throw new Error(`HTTP ${resp.status}: ${text}${hint}`);
   }
   // WeatherCloud returns HTTP 200 for all responses; the actual status is in the body.
   // 429 in the body means rate-limited — standard accounts allow 1 update/10 min,
