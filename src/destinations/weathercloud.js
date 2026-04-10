@@ -46,7 +46,7 @@ export async function updateWeathercloud(conditions, env) {
   // 429 in the body means rate-limited — standard accounts allow 1 update/10 min,
   // so every other 5-min cycle is expected to be rejected. 200 in the body = accepted.
   if (text.trim() === '429') {
-    console.log('WeatherCloud: [not ok] rate-limited (429) — expected every other cycle');
+    console.log('WeatherCloud: [warn] rate-limited (429) — expected every other cycle');
   } else {
     console.log('WeatherCloud: [ok]', resp.status, text);
   }
