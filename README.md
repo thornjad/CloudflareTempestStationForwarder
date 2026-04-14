@@ -15,7 +15,7 @@ This Cloudflare Worker is derived from the Google Apps Script project [Wundergro
 | [Weather Underground](https://www.wunderground.com/) | Tempest already feeds WU directly |
 | [Windy](https://stations.windy.com/)                 |                                   |
 | [OpenWeatherMap](https://openweathermap.org/stations) |                                   |
-| [WeatherCloud](https://weathercloud.net/)            | Standard accounts: 1 update/10 min; worker runs every 5 min, so alternating updates will be rejected (safe to ignore) |
+| [WeatherCloud](https://weathercloud.net/)            | Basic plan allows 1 update/10 min; submissions are gated to 10-minute boundaries using the cron's scheduled time |
 
 Destinations are enabled automatically when their required secrets are set. To add a new destination, add a module in `src/destinations/` following the existing pattern.
 
