@@ -1,8 +1,11 @@
 // https://weathercloud.net
 // API reference: https://gitlab.com/acuparse/acuparse/-/blob/dev/src/fcn/cron/uploaders/weathercloud.php
 // Numeric values use tenths-of-a-unit (value × 10, rounded to integer).
-// Standard accounts are rate-limited to 1 update per 10 min; this worker runs every 5 min,
-// so every other update will be rejected — this is expected and safe.
+// The HTTP status is always 200; the actual result code is in the response body.
+// Known body codes: 200 = accepted, 400 = bad request, 401 = bad credentials,
+// 429 = rate-limited, 500 = server error.
+// Basic plan allows 1 update per 10 min; this worker runs every 5 min,
+// so every other submission will be rate-limited — this is expected.
 
 const SOFTWARE_TYPE = 'cfworkerforwarder1.0.0';
 
@@ -43,13 +46,13 @@ export async function updateWeathercloud(conditions, env) {
     const hint = resp.status === 429 ? ' (rate-limited)' : '';
     throw new Error(`HTTP ${resp.status}: ${text}${hint}`);
   }
-  // WeatherCloud returns HTTP 200 for all responses; the actual status is in the body.
-  // 429 in the body means rate-limited — standard accounts allow 1 update/10 min,
-  // so every other 5-min cycle is expected to be rejected. 200 in the body = accepted.
-  if (text.trim() === '429') {
-    console.log('WeatherCloud: [warn] rate-limited (429) — expected every other cycle');
-  } else {
+  const bodyStatus = text.trim();
+  if (bodyStatus === '429') {
+    console.log('WeatherCloud: [warn] rate-limited (429) — expected every other cycle on Basic plan');
+  } else if (bodyStatus === '200') {
     console.log('WeatherCloud: [ok]', resp.status, text);
+  } else {
+    throw new Error(`WeatherCloud body error ${bodyStatus}`);
   }
   return text;
 }

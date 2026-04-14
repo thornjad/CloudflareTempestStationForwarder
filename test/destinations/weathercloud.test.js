@@ -99,15 +99,25 @@ describe('updateWeathercloud', () => {
     expect(url).toContain('software=cfworkerforwarder1.0.0');
   });
 
-  it('throws with rate-limit hint on 429', async () => {
+  it('throws with rate-limit hint on HTTP 429', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, status: 429, text: async () => 'Too Many Requests' })));
     await expect(updateWeathercloud(conditions, env)).rejects.toThrow('rate-limited');
   });
 
-  it('throws without rate-limit hint on other errors', async () => {
+  it('throws without rate-limit hint on other HTTP errors', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, status: 401, text: async () => 'Unauthorized' })));
     const err = await updateWeathercloud(conditions, env).catch((e) => e);
     expect(err.message).toContain('401');
     expect(err.message).not.toContain('rate-limited');
+  });
+
+  it('warns but does not throw on body-level 429', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, text: async () => '429' })));
+    await expect(updateWeathercloud(conditions, env)).resolves.not.toThrow();
+  });
+
+  it('throws on body-level 500', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, text: async () => '500' })));
+    await expect(updateWeathercloud(conditions, env)).rejects.toThrow('body error 500');
   });
 });
