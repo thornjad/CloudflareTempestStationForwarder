@@ -4,8 +4,8 @@
 // The HTTP status is always 200; the actual result code is in the response body.
 // Known body codes: 200 = accepted, 400 = bad request, 401 = bad credentials,
 // 429 = rate-limited, 500 = server error.
-// Basic plan allows 1 update per 10 min; this worker runs every 5 min,
-// so every other submission will be rate-limited — this is expected.
+// Basic plan allows 1 update per 10 min. This worker runs every 5 min, so we
+// gate submissions to 10-minute boundaries using the cron's scheduled time.
 
 const SOFTWARE_TYPE = 'cfworkerforwarder1.0.0';
 
@@ -14,7 +14,11 @@ const SOFTWARE_TYPE = 'cfworkerforwarder1.0.0';
  * @param {object} conditions - normalized conditions object from tempest.js
  * @param {object} env - Worker env bindings
  */
-export async function updateWeathercloud(conditions, env) {
+export async function updateWeathercloud(conditions, env, scheduledTime) {
+  if (new Date(scheduledTime).getUTCMinutes() % 10 !== 0) {
+    console.log('WeatherCloud: [skip] not a 10-minute boundary');
+    return;
+  }
   const d = new Date(conditions.time);
   const pad = (n) => String(n).padStart(2, '0');
   const date = `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}`;
@@ -47,9 +51,7 @@ export async function updateWeathercloud(conditions, env) {
     throw new Error(`HTTP ${resp.status}: ${text}${hint}`);
   }
   const bodyStatus = text.trim();
-  if (bodyStatus === '429') {
-    console.log('WeatherCloud: [warn] rate-limited (429) — expected every other cycle on Basic plan');
-  } else if (bodyStatus === '200') {
+  if (bodyStatus === '200') {
     console.log('WeatherCloud: [ok]', resp.status, text);
   } else {
     throw new Error(`WeatherCloud body error ${bodyStatus}`);

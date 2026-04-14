@@ -25,6 +25,11 @@ const env = {
   WEATHERCLOUD_KEY: 'secretkey',
 };
 
+// 14:30 UTC — minute 30, on a 10-minute boundary
+const scheduledTime = Date.UTC(2024, 5, 15, 14, 30, 0);
+// 14:35 UTC — minute 35, not on a 10-minute boundary
+const offBoundaryTime = Date.UTC(2024, 5, 15, 14, 35, 0);
+
 beforeEach(() => {
   vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, text: async () => '200' })));
 });
@@ -35,28 +40,33 @@ afterEach(() => {
 });
 
 describe('updateWeathercloud', () => {
-  it('calls WeatherCloud endpoint', async () => {
-    await updateWeathercloud(conditions, env);
+  it('skips submission when not on a 10-minute boundary', async () => {
+    await updateWeathercloud(conditions, env, offBoundaryTime);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('calls WeatherCloud endpoint on a 10-minute boundary', async () => {
+    await updateWeathercloud(conditions, env, scheduledTime);
     const url = fetch.mock.calls[0][0];
     expect(url).toContain('api.weathercloud.net/v01/set');
   });
 
   it('includes station ID and key', async () => {
-    await updateWeathercloud(conditions, env);
+    await updateWeathercloud(conditions, env, scheduledTime);
     const url = fetch.mock.calls[0][0];
     expect(url).toContain('wid=abc123station');
     expect(url).toContain('key=secretkey');
   });
 
   it('formats date as YYYYMMDD and time as HHmm (UTC)', async () => {
-    await updateWeathercloud(conditions, env);
+    await updateWeathercloud(conditions, env, scheduledTime);
     const url = fetch.mock.calls[0][0];
     expect(url).toContain('date=20240615');
     expect(url).toContain('time=1430');
   });
 
   it('scales numeric params by ×10', async () => {
-    await updateWeathercloud(conditions, env);
+    await updateWeathercloud(conditions, env, scheduledTime);
     const url = fetch.mock.calls[0][0];
     expect(url).toContain('temp=250');       // 25.0 × 10
     expect(url).toContain('dew=150');        // 15.0 × 10
@@ -70,14 +80,14 @@ describe('updateWeathercloud', () => {
   });
 
   it('does not scale wdir or hum', async () => {
-    await updateWeathercloud(conditions, env);
+    await updateWeathercloud(conditions, env, scheduledTime);
     const url = fetch.mock.calls[0][0];
     expect(url).toContain('wdir=270');
     expect(url).toContain('hum=55');
   });
 
   it('includes wind chill and heat index', async () => {
-    await updateWeathercloud(conditions, env);
+    await updateWeathercloud(conditions, env, scheduledTime);
     const url = fetch.mock.calls[0][0];
     expect(url).toContain('chill=228');  // round(22.8 × 10)
     expect(url).toContain('heat=261');   // round(26.1 × 10)
@@ -85,7 +95,7 @@ describe('updateWeathercloud', () => {
 
   it('omits optional fields when null', async () => {
     const sparse = { ...conditions, windChill: null, heatIndex: null, uv: null, solarRadiation: null };
-    await updateWeathercloud(sparse, env);
+    await updateWeathercloud(sparse, env, scheduledTime);
     const url = fetch.mock.calls[0][0];
     expect(url).not.toContain('chill=');
     expect(url).not.toContain('heat=');
@@ -94,30 +104,30 @@ describe('updateWeathercloud', () => {
   });
 
   it('includes software identifier', async () => {
-    await updateWeathercloud(conditions, env);
+    await updateWeathercloud(conditions, env, scheduledTime);
     const url = fetch.mock.calls[0][0];
     expect(url).toContain('software=cfworkerforwarder1.0.0');
   });
 
   it('throws with rate-limit hint on HTTP 429', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, status: 429, text: async () => 'Too Many Requests' })));
-    await expect(updateWeathercloud(conditions, env)).rejects.toThrow('rate-limited');
+    await expect(updateWeathercloud(conditions, env, scheduledTime)).rejects.toThrow('rate-limited');
   });
 
   it('throws without rate-limit hint on other HTTP errors', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, status: 401, text: async () => 'Unauthorized' })));
-    const err = await updateWeathercloud(conditions, env).catch((e) => e);
+    const err = await updateWeathercloud(conditions, env, scheduledTime).catch((e) => e);
     expect(err.message).toContain('401');
     expect(err.message).not.toContain('rate-limited');
   });
 
-  it('warns but does not throw on body-level 429', async () => {
+  it('throws on body-level 429', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, text: async () => '429' })));
-    await expect(updateWeathercloud(conditions, env)).resolves.not.toThrow();
+    await expect(updateWeathercloud(conditions, env, scheduledTime)).rejects.toThrow('body error 429');
   });
 
   it('throws on body-level 500', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, text: async () => '500' })));
-    await expect(updateWeathercloud(conditions, env)).rejects.toThrow('body error 500');
+    await expect(updateWeathercloud(conditions, env, scheduledTime)).rejects.toThrow('body error 500');
   });
 });

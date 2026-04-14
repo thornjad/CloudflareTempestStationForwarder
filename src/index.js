@@ -7,7 +7,7 @@ import { updateOpenWeatherMap } from './destinations/openweathermap.js';
 import { updateWeathercloud } from './destinations/weathercloud.js';
 
 export default {
-  async scheduled(_event, env, _ctx) {
+  async scheduled(event, env, _ctx) {
     const conditions = await fetchConditions(env);
     if (!conditions) {
       console.error('Failed to fetch conditions from Tempest — aborting update cycle');
@@ -53,7 +53,7 @@ export default {
 
     if (env.WEATHERCLOUD_ID && env.WEATHERCLOUD_KEY) {
       tasks.push(
-        updateWeathercloud(conditions, env)
+        updateWeathercloud(conditions, env, event.scheduledTime)
           .catch((err) => console.error('WeatherCloud error:', err.message))
       );
     }
