@@ -139,38 +139,11 @@ describe('updateWeathercloud', () => {
     expect(err.message).not.toContain('secretkey');
   });
 
-  it('retries once on transient body 500, then succeeds', async () => {
-    vi.useFakeTimers();
-    const fetchMock = vi.fn()
-      .mockResolvedValueOnce({ ok: true, status: 200, text: async () => '500' })
-      .mockResolvedValueOnce({ ok: true, status: 200, text: async () => '200' });
-    vi.stubGlobal('fetch', fetchMock);
-    const p = updateWeathercloud(conditions, env, scheduledTime);
-    await vi.runAllTimersAsync();
-    await expect(p).resolves.toBe('200');
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-  });
-
-  it('retries once on HTTP 5xx, then succeeds', async () => {
-    vi.useFakeTimers();
-    const fetchMock = vi.fn()
-      .mockResolvedValueOnce({ ok: false, status: 503, text: async () => 'Service Unavailable' })
-      .mockResolvedValueOnce({ ok: true, status: 200, text: async () => '200' });
-    vi.stubGlobal('fetch', fetchMock);
-    const p = updateWeathercloud(conditions, env, scheduledTime);
-    await vi.runAllTimersAsync();
-    await expect(p).resolves.toBe('200');
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-  });
-
-  it('gives up after one retry when body 500 persists', async () => {
-    vi.useFakeTimers();
+  it('throws with code meaning on body-level 500 without retrying', async () => {
     const fetchMock = vi.fn(async () => ({ ok: true, status: 200, text: async () => '500' }));
     vi.stubGlobal('fetch', fetchMock);
-    const p = updateWeathercloud(conditions, env, scheduledTime).catch((e) => e);
-    await vi.runAllTimersAsync();
-    const err = await p;
+    const err = await updateWeathercloud(conditions, env, scheduledTime).catch((e) => e);
     expect(err.message).toContain('body 500 (WeatherCloud server error');
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });

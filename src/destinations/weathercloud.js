@@ -14,14 +14,8 @@ const CODE_MEANINGS = {
   '400': 'bad request (malformed or out-of-range parameters)',
   '401': 'bad credentials (check WEATHERCLOUD_ID / WEATHERCLOUD_KEY)',
   '429': 'rate-limited (max 1 update per 10 min on the basic plan)',
-  '500': 'WeatherCloud server error (usually transient)',
+  '500': 'WeatherCloud server error',
 };
-
-const RETRY_DELAY_MS = 3000;
-
-function sleep(ms) {
-  return new Promise((r) => setTimeout(r, ms));
-}
 
 /**
  * Forward conditions to WeatherCloud.
@@ -63,27 +57,17 @@ export async function updateWeathercloud(conditions, env, scheduledTime) {
     .replace(env.WEATHERCLOUD_ID, '<wid>')
     .replace(env.WEATHERCLOUD_KEY, '<key>');
 
-  const MAX_ATTEMPTS = 2; // one retry on transient server errors
-  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-    const resp = await fetch(url);
-    const text = await resp.text();
-    const bodyStatus = text.trim();
+  const resp = await fetch(url);
+  const text = await resp.text();
+  const bodyStatus = text.trim();
 
-    if (resp.ok && bodyStatus === '200') {
-      console.log('[ok] WeatherCloud', resp.status, text);
-      return text;
-    }
-
-    const detail = resp.ok
-      ? `body ${bodyStatus} (${CODE_MEANINGS[bodyStatus] ?? 'unknown code'})`
-      : `HTTP ${resp.status}${resp.status === 429 ? ' (rate-limited)' : ''}: ${text}`;
-    const transient = resp.status >= 500 || bodyStatus === '500';
-
-    if (transient && attempt < MAX_ATTEMPTS) {
-      console.log(`[retry] WeatherCloud ${detail}; retrying once`);
-      await sleep(RETRY_DELAY_MS);
-      continue;
-    }
-    throw new Error(`WeatherCloud ${detail}; sent ${redacted}`);
+  if (resp.ok && bodyStatus === '200') {
+    console.log('[ok] WeatherCloud', resp.status, text);
+    return text;
   }
+
+  const detail = resp.ok
+    ? `body ${bodyStatus} (${CODE_MEANINGS[bodyStatus] ?? 'unknown code'})`
+    : `HTTP ${resp.status}${resp.status === 429 ? ' (rate-limited)' : ''}: ${text}`;
+  throw new Error(`WeatherCloud ${detail}; sent ${redacted}`);
 }
