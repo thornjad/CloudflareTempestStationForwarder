@@ -30,7 +30,7 @@ function sleep(ms) {
  */
 export async function updateWeathercloud(conditions, env, scheduledTime) {
   if (new Date(scheduledTime).getUTCMinutes() % 10 !== 0) {
-    console.log('WeatherCloud: [skip] not a 10-minute boundary');
+    console.log('[skip] WeatherCloud not a 10-minute boundary');
     return;
   }
   const d = new Date(conditions.time);
@@ -70,7 +70,7 @@ export async function updateWeathercloud(conditions, env, scheduledTime) {
     const bodyStatus = text.trim();
 
     if (resp.ok && bodyStatus === '200') {
-      console.log('WeatherCloud: [ok]', resp.status, text);
+      console.log('[ok] WeatherCloud', resp.status, text);
       return text;
     }
 
@@ -80,7 +80,7 @@ export async function updateWeathercloud(conditions, env, scheduledTime) {
     const transient = resp.status >= 500 || bodyStatus === '500';
 
     if (transient && attempt < MAX_ATTEMPTS) {
-      console.log(`WeatherCloud: [retry] ${detail}; retrying once`);
+      console.log(`[retry] WeatherCloud ${detail}; retrying once`);
       await sleep(RETRY_DELAY_MS);
       continue;
     }

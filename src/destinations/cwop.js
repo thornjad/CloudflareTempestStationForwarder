@@ -22,7 +22,7 @@ export async function updateCWOP(conditions, env) {
   // skip if we already sent a packet for this observation timestamp
   const lastTime = await env.CACHE.get('lastCwopTime');
   if (lastTime === String(conditions.time)) {
-    console.log('CWOP: already sent packet for time', conditions.time);
+    console.log('[skip] CWOP already sent packet for time', conditions.time);
     return;
   }
 
@@ -44,12 +44,12 @@ export async function updateCWOP(conditions, env) {
   if (conditions.precipSinceMidnight != null) url += `&dailyrainin=${conditions.precipSinceMidnight.in}`;
   url += `&software=${SOFTWARE_TYPE}`;
 
-  console.log('CWOP: submitting packet for', new Date(conditions.time).toISOString());
+  console.log('[send] CWOP submitting packet for', new Date(conditions.time).toISOString());
 
   const resp = await fetch(url);
   const text = await resp.text();
   if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${text}`);
-  console.log('CWOP: [ok]', resp.status, text);
+  console.log('[ok] CWOP', resp.status, text);
 
   await env.CACHE.put('lastCwopTime', String(conditions.time), { expirationTtl: 21600 });
 

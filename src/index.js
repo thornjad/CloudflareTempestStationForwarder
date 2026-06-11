@@ -10,7 +10,7 @@ export default {
   async scheduled(event, env, _ctx) {
     const conditions = await fetchConditions(env);
     if (!conditions) {
-      console.error('Failed to fetch conditions from Tempest — aborting update cycle');
+      console.error('[err] Tempest failed to fetch conditions — aborting update cycle');
       return;
     }
 
@@ -19,42 +19,42 @@ export default {
     if (env.PWSWEATHER_STATION_ID && env.PWSWEATHER_API_KEY) {
       tasks.push(
         updatePWSWeather(conditions, env)
-          .catch((err) => console.error('PWSWeather error:', err.message))
+          .catch((err) => console.error('[err] PWSWeather', err.message))
       );
     }
 
     if (env.CWOP_STATION_ID) {
       tasks.push(
         updateCWOP(conditions, env)
-          .catch((err) => console.error('CWOP error:', err.message))
+          .catch((err) => console.error('[err] CWOP', err.message))
       );
     }
 
     if (env.WUNDERGROUND_STATION_ID && env.WUNDERGROUND_STATION_KEY) {
       tasks.push(
         updateWunderground(conditions, env)
-          .catch((err) => console.error('Wunderground error:', err.message))
+          .catch((err) => console.error('[err] Wunderground', err.message))
       );
     }
 
     if (env.WINDY_STATION_ID && env.WINDY_STATION_PASSWORD) {
       tasks.push(
         updateWindy(conditions, env)
-          .catch((err) => console.error('Windy error:', err.message))
+          .catch((err) => console.error('[err] Windy', err.message))
       );
     }
 
     if (env.OWM_STATION_ID && env.OWM_API_KEY) {
       tasks.push(
         updateOpenWeatherMap(conditions, env)
-          .catch((err) => console.error('OpenWeatherMap error:', err.message))
+          .catch((err) => console.error('[err] OpenWeatherMap', err.message))
       );
     }
 
     if (env.WEATHERCLOUD_ID && env.WEATHERCLOUD_KEY) {
       tasks.push(
         updateWeathercloud(conditions, env, event.scheduledTime)
-          .catch((err) => console.error('WeatherCloud error:', err.message))
+          .catch((err) => console.error('[err] WeatherCloud', err.message))
       );
     }
 
