@@ -14,6 +14,12 @@ id = "87fcd0db9380464b9bed4dd4a542cff9"
 [vars]
 CWOP_VALIDATION_CODE = ""  # ham operators only — leave empty otherwise
 
+[observability.logs]
+enabled = true
+invocation_logs = true
+
+[observability.traces]
+
 # Secrets (set via `npx wrangler secret put <NAME>`):
 # TEMPEST_TOKEN            - Tempest API token
 # TEMPEST_STATION_ID       - Tempest station ID (links to home location)
