@@ -37,6 +37,7 @@ beforeEach(() => {
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.clearAllMocks();
+  vi.useRealTimers();
 });
 
 describe('updateWeathercloud', () => {
@@ -121,13 +122,55 @@ describe('updateWeathercloud', () => {
     expect(err.message).not.toContain('rate-limited');
   });
 
-  it('throws on body-level 429', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, text: async () => '429' })));
-    await expect(updateWeathercloud(conditions, env, scheduledTime)).rejects.toThrow('body error 429');
+  it('throws with code meaning on body-level 429 without retrying', async () => {
+    const fetchMock = vi.fn(async () => ({ ok: true, status: 200, text: async () => '429' }));
+    vi.stubGlobal('fetch', fetchMock);
+    const err = await updateWeathercloud(conditions, env, scheduledTime).catch((e) => e);
+    expect(err.message).toContain('body 429 (rate-limited');
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it('throws on body-level 500', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, text: async () => '500' })));
-    await expect(updateWeathercloud(conditions, env, scheduledTime)).rejects.toThrow('body error 500');
+  it('redacts wid and key from the logged request on error', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, text: async () => '401' })));
+    const err = await updateWeathercloud(conditions, env, scheduledTime).catch((e) => e);
+    expect(err.message).toContain('wid=<wid>');
+    expect(err.message).toContain('key=<key>');
+    expect(err.message).not.toContain('abc123station');
+    expect(err.message).not.toContain('secretkey');
+  });
+
+  it('retries once on transient body 500, then succeeds', async () => {
+    vi.useFakeTimers();
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: true, status: 200, text: async () => '500' })
+      .mockResolvedValueOnce({ ok: true, status: 200, text: async () => '200' });
+    vi.stubGlobal('fetch', fetchMock);
+    const p = updateWeathercloud(conditions, env, scheduledTime);
+    await vi.runAllTimersAsync();
+    await expect(p).resolves.toBe('200');
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('retries once on HTTP 5xx, then succeeds', async () => {
+    vi.useFakeTimers();
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: false, status: 503, text: async () => 'Service Unavailable' })
+      .mockResolvedValueOnce({ ok: true, status: 200, text: async () => '200' });
+    vi.stubGlobal('fetch', fetchMock);
+    const p = updateWeathercloud(conditions, env, scheduledTime);
+    await vi.runAllTimersAsync();
+    await expect(p).resolves.toBe('200');
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('gives up after one retry when body 500 persists', async () => {
+    vi.useFakeTimers();
+    const fetchMock = vi.fn(async () => ({ ok: true, status: 200, text: async () => '500' }));
+    vi.stubGlobal('fetch', fetchMock);
+    const p = updateWeathercloud(conditions, env, scheduledTime).catch((e) => e);
+    await vi.runAllTimersAsync();
+    const err = await p;
+    expect(err.message).toContain('body 500 (WeatherCloud server error');
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 });

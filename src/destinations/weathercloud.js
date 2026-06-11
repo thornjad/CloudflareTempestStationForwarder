@@ -9,6 +9,20 @@
 
 const SOFTWARE_TYPE = 'cfworkerforwarder1.0.0';
 
+// human-readable meanings for WeatherCloud body status codes
+const CODE_MEANINGS = {
+  '400': 'bad request (malformed or out-of-range parameters)',
+  '401': 'bad credentials (check WEATHERCLOUD_ID / WEATHERCLOUD_KEY)',
+  '429': 'rate-limited (max 1 update per 10 min on the basic plan)',
+  '500': 'WeatherCloud server error (usually transient)',
+};
+
+const RETRY_DELAY_MS = 3000;
+
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
 /**
  * Forward conditions to WeatherCloud.
  * @param {object} conditions - normalized conditions object from tempest.js
@@ -44,17 +58,32 @@ export async function updateWeathercloud(conditions, env, scheduledTime) {
   if (conditions.precipSinceMidnight != null) url += `&rain=${Math.round(conditions.precipSinceMidnight.mm * 10)}`;
   url += `&software=${SOFTWARE_TYPE}`;
 
-  const resp = await fetch(url);
-  const text = await resp.text();
-  if (!resp.ok) {
-    const hint = resp.status === 429 ? ' (rate-limited)' : '';
-    throw new Error(`HTTP ${resp.status}: ${text}${hint}`);
+  // wid and key are secrets; redact them before logging the request
+  const redacted = url
+    .replace(env.WEATHERCLOUD_ID, '<wid>')
+    .replace(env.WEATHERCLOUD_KEY, '<key>');
+
+  const MAX_ATTEMPTS = 2; // one retry on transient server errors
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    const resp = await fetch(url);
+    const text = await resp.text();
+    const bodyStatus = text.trim();
+
+    if (resp.ok && bodyStatus === '200') {
+      console.log('WeatherCloud: [ok]', resp.status, text);
+      return text;
+    }
+
+    const detail = resp.ok
+      ? `body ${bodyStatus} (${CODE_MEANINGS[bodyStatus] ?? 'unknown code'})`
+      : `HTTP ${resp.status}${resp.status === 429 ? ' (rate-limited)' : ''}: ${text}`;
+    const transient = resp.status >= 500 || bodyStatus === '500';
+
+    if (transient && attempt < MAX_ATTEMPTS) {
+      console.log(`WeatherCloud: [retry] ${detail}; retrying once`);
+      await sleep(RETRY_DELAY_MS);
+      continue;
+    }
+    throw new Error(`WeatherCloud ${detail}; sent ${redacted}`);
   }
-  const bodyStatus = text.trim();
-  if (bodyStatus === '200') {
-    console.log('WeatherCloud: [ok]', resp.status, text);
-  } else {
-    throw new Error(`WeatherCloud body error ${bodyStatus}`);
-  }
-  return text;
 }
